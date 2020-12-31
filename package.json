@@ -1,0 +1,25 @@
+{
+  "name": "EmployeeTracker",
+  "version": "1.0.0",
+  "description": "An application for a business man to be able to view and manage the departments, roles, and employees in their company so that they can organize and plan their business",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/veryfaye/EmployeeTracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/veryfaye/EmployeeTracker/issues"
+  },
+  "homepage": "https://github.com/veryfaye/EmployeeTracker#readme",
+  "dependencies": {
+    "asciiart-logo": "^0.2.6",
+    "console.table": "^0.10.0",
+    "inquirer": "^7.3.3"
+  }
+}
