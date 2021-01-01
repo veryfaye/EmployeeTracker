@@ -220,15 +220,19 @@ function addEmployee() {
 function removeEmployee() {
   inquirer
     .prompt({
-      name: "employeeToRempove",
+      name: "employeeToRemove",
       type: "list",
       message: "Select the employee to remove:",
       choices: employees,
     })
     .then((response) => {
       console.log(response);
+      let employeeID = getID(employees, response.employeeToRemove);
+      db.query("DELETE FROM employee WHERE id =?", employeeID, function (err) {
+        if (err) throw err;
+        start();
+      });
     });
-  start();
 }
 function updateEmployeeRole() {
   start();
