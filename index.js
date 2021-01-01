@@ -336,13 +336,44 @@ function addRole() {
     });
 }
 function removeRole() {
-  start();
+  inquirer
+    .prompt([
+      {
+        name: "roleToRemove",
+        type: "list",
+        message: "Select the role to remove:",
+        choices: roles,
+      },
+    ])
+    .then((response) => {
+      let roleID = getID(roles, response.roleToRemove);
+      db.query("DELETE FROM role WHERE id =?", roleID, function (err) {
+        if (err) throw err;
+        start();
+      });
+    });
 }
 function viewAllDepartments() {
-  start();
+  db.query("SELECT * FROM department", function (err, res) {
+    console.table(res);
+    start();
+  });
 }
 function addDepartment() {
-  start();
+  inquirer
+    .prompt([
+      { name: "deptToAdd", message: "Enter the name of the new Department: " },
+    ])
+    .then((response) => {
+      db.query(
+        "INSERT INTO department (name) VALUES (?)",
+        response.deptToAdd,
+        function (err) {
+          if (err) throw err;
+          start();
+        }
+      );
+    });
 }
 function removeDepartment() {
   start();
