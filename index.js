@@ -44,7 +44,7 @@ function start() {
     "SELECT * FROM department ORDER BY department.id",
     function (err, res) {
       res.forEach((item) => {
-        departments.push(item.name);
+        departments.push({ name: item.name, id: item.id });
       });
       // console.log(departments);
     }
@@ -266,7 +266,7 @@ function updateEmployeeRole() {
     });
 }
 function updateEmployeeManager() {
-    inquirer
+  inquirer
     .prompt([
       {
         name: "employeeToUpdateManager",
@@ -294,15 +294,46 @@ function updateEmployeeManager() {
           start();
         }
       );
-    });}
-function viewAllRoles() {
-    db.query('SELECT role.id, role.title, role.salary, department.name FROM role INNER JOIN department ON role.department_id = department.id ORDER BY role.id', function(err, res) {
-        console.table(res);
-        start();
     });
 }
+function viewAllRoles() {
+  db.query(
+    "SELECT role.id, role.title, role.salary, department.name FROM role INNER JOIN department ON role.department_id = department.id ORDER BY role.id",
+    function (err, res) {
+      console.table(res);
+      start();
+    }
+  );
+}
 function addRole() {
-  start();
+  inquirer
+    .prompt([
+      {
+        name: "title",
+        message: "Enter the role title: ",
+      },
+      {
+        name: "salary",
+        message: "Enter the salary for the role: ",
+      },
+      {
+        name: "department",
+        type: "list",
+        message: "Select the department for the role:",
+        choices: departments,
+      },
+    ])
+    .then((response) => {
+      let departmentID = getID(departments, response.department);
+      db.query(
+        "INSERT INTO role (title, salary, department_id) VALUES (?,?,?)",
+        [response.title, response.salary, departmentID],
+        function (err) {
+          if (err) throw err;
+          start();
+        }
+      );
+    });
 }
 function removeRole() {
   start();
