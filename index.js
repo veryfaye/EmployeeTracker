@@ -222,6 +222,7 @@ function addEmployee() {
         ],
         function (err) {
           if (err) throw err;
+          viewAllEmployees();
           start();
         }
       );
@@ -240,6 +241,7 @@ function removeEmployee() {
       let employeeID = getID(employees, response.employeeToRemove);
       db.query("DELETE FROM employee WHERE id =?", employeeID, function (err) {
         if (err) throw err;
+        viewAllEmployees();
         start();
       });
     });
@@ -270,6 +272,7 @@ function updateEmployeeRole() {
         [roleID, employeeID],
         function (err) {
           if (err) throw err;
+          viewAllEmployees();
           start();
         }
       );
@@ -301,6 +304,7 @@ function updateEmployeeManager() {
         [managerID, employeeID],
         function (err) {
           if (err) throw err;
+          viewAllEmployees();
           start();
         }
       );
@@ -341,6 +345,7 @@ function addRole() {
         [response.title, response.salary, departmentID],
         function (err) {
           if (err) throw err;
+          viewAllRoles();
           start();
         }
       );
@@ -360,6 +365,7 @@ function removeRole() {
       let roleID = getID(roles, response.roleToRemove);
       db.query("DELETE FROM role WHERE id =?", roleID, function (err) {
         if (err) throw err;
+        viewAllRoles();
         start();
       });
     });
@@ -381,6 +387,7 @@ function addDepartment() {
         response.deptToAdd,
         function (err) {
           if (err) throw err;
+          viewAllDepartments();
           start();
         }
       );
@@ -400,6 +407,7 @@ function removeDepartment() {
       let deptID = getID(departments, response.deptToRemove);
       db.query("DELETE FROM department WHERE id = ?", deptID, function (err) {
         if (err) throw err;
+        viewAllDepartments();
         start();
       });
     });
