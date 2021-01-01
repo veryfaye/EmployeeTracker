@@ -43,6 +43,7 @@ function start() {
   db.query(
     "SELECT * FROM department ORDER BY department.id",
     function (err, res) {
+      if (err) throw err;
       res.forEach((item) => {
         departments.push({ name: item.name, id: item.id });
       });
@@ -51,6 +52,7 @@ function start() {
   );
 
   db.query("SELECT * FROM role ORDER BY role.id", function (err, res) {
+    if (err) throw err;
     res.forEach((item) => {
       roles.push({ name: item.title, id: item.id });
     });
@@ -60,6 +62,7 @@ function start() {
   db.query(
     "SELECT * FROM employee WHERE manager_id IS NULL ORDER BY employee.id",
     function (err, res) {
+      if (err) throw err;
       res.forEach((item) => {
         managerName = item.first_name + " " + item.last_name;
         managers.push({ name: managerName, id: item.id });
@@ -69,6 +72,7 @@ function start() {
   );
 
   db.query("SELECT * FROM employee ORDER BY employee.id", function (err, res) {
+    if (err) throw err;
     res.forEach((item) => {
       employeeName = item.first_name + " " + item.last_name;
       employees.push({ name: employeeName, id: item.id });
@@ -137,6 +141,7 @@ function getID(array, key) {
 }
 function viewAllEmployees() {
   db.query(employeeQuery, function (err, res) {
+    if (err) throw err;
     console.table(res);
     start();
   });
@@ -153,6 +158,7 @@ function viewAllEmployeesByDepartment() {
     .then((response) => {
       employeeQuery += " WHERE department.name = ? ORDER BY employee.id";
       db.query(employeeQuery, response.deptAction, function (err, res) {
+        if (err) throw err;
         console.table(res);
         start();
       });
@@ -171,6 +177,7 @@ function viewAllEmployeesByManager() {
       employeeQuery +=
         ' WHERE CONCAT(m.first_name, " ", m.last_name) = ? ORDER BY employee.id';
       db.query(employeeQuery, response.managerAction, function (err, res) {
+        if (err) throw err;
         console.table(res);
         start();
       });
@@ -303,6 +310,7 @@ function viewAllRoles() {
   db.query(
     "SELECT role.id, role.title, role.salary, department.name FROM role INNER JOIN department ON role.department_id = department.id ORDER BY role.id",
     function (err, res) {
+      if (err) throw err;
       console.table(res);
       start();
     }
@@ -412,6 +420,7 @@ function viewDepartmentBudget() {
         "SELECT salary FROM role WHERE department_id = ?",
         deptID,
         function (err, res) {
+          if (err) throw err;
           let salaries = 0;
           res.forEach((item) => {
             salaries += item.salary;
