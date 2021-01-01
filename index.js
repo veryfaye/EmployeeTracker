@@ -1,6 +1,5 @@
 const inquirer = require("inquirer");
 const db = require("./db/connection");
-const table = require("console.table");
 const logo = require("asciiart-logo");
 const { debugPort } = require("process");
 const { indexOf } = require("lodash");
@@ -23,6 +22,7 @@ const choices = {
     "View All Departments",
     "Add Department",
     "Remove Department",
+    "View Department Budget",
     "Quit",
   ],
 };
@@ -117,6 +117,9 @@ function start() {
         break;
       case "Remove Department":
         removeDepartment();
+        break;
+      case "View Department Budget":
+        viewDepartmentBudget();
         break;
       case "Quit":
         db.end();
@@ -391,6 +394,35 @@ function removeDepartment() {
         if (err) throw err;
         start();
       });
+    });
+}
+function viewDepartmentBudget() {
+  inquirer
+    .prompt([
+      {
+        name: "deptBudget",
+        type: "list",
+        message: "Select the department to view the budget:",
+        choices: departments,
+      },
+    ])
+    .then((response) => {
+      let deptID = getID(departments, response.deptBudget);
+      db.query(
+        "SELECT salary FROM role WHERE department_id = ?",
+        deptID,
+        function (err, res) {
+          let salaries = 0;
+          res.forEach((item) => {
+            salaries += item.salary;
+          });
+          console.log(
+            "Combined salaries for the ",
+            response.deptBudget + " is " + salaries
+          );
+          start();
+        }
+      );
     });
 }
 
