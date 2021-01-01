@@ -3,6 +3,7 @@ const db = require("./db/connection");
 const table = require("console.table");
 const logo = require("asciiart-logo");
 const { debugPort } = require("process");
+const { indexOf } = require("lodash");
 
 const choices = {
   name: "choice",
@@ -29,14 +30,14 @@ const choices = {
 let departments = [];
 let roles = [];
 let managers = [];
-let managerID = [];
+let employees = [];
 let employeeQuery;
 
 function start() {
   departments = [];
   roles = [];
   managers = [];
-  managerID = [];
+  employees = [];
   employeeQuery =
     'SELECT employee.id, CONCAT(employee.first_name, " ", employee.last_name) AS name, role.title, department.name AS department, role.salary, CONCAT(m.first_name, " ", m.last_name) AS manager FROM employee LEFT JOIN employee m ON employee.manager_id = m.id INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id';
   db.query(
@@ -51,21 +52,30 @@ function start() {
 
   db.query("SELECT * FROM role ORDER BY role.id", function (err, res) {
     res.forEach((item) => {
-      roles.push(item.title);
+      roles.push({ name: item.title, id: item.id });
     });
     //   console.log(roles);
   });
 
   db.query(
-    "SELECT * FROM employee WHERE manager_id IS NULL",
+    "SELECT * FROM employee WHERE manager_id IS NULL ORDER BY employee.id",
     function (err, res) {
       res.forEach((item) => {
-        managers.push(item.first_name + " " + item.last_name);
-        managerID.push(item.id);
+        managerName = item.first_name + " " + item.last_name;
+        managers.push({ name: managerName, id: item.id });
       });
       // console.log(managers);
     }
   );
+
+  db.query("SELECT * FROM employee ORDER BY employee.id", function (err, res) {
+    res.forEach((item) => {
+      employeeName = item.first_name + " " + item.last_name;
+      employees.push({ name: employeeName, id: item.id });
+    });
+    // console.log(employees);
+  });
+
   inquirer.prompt(choices).then((response) => {
     console.log(response.choice);
     switch (response.choice) {
@@ -79,24 +89,34 @@ function start() {
         viewAllEmployeesByManager();
         break;
       case "Add Employee":
+        addEmployee();
         break;
       case "Remove Employee":
+        removeEmployee();
         break;
       case "Update Employee Role":
+        updateEmployeeRole();
         break;
       case "Update Employee Manager":
+        updateEmployeeManager();
         break;
       case "View All Roles":
+        viewAllRoles();
         break;
       case "Add Role":
+        addRole();
         break;
       case "Remove Role":
+        removeRole();
         break;
       case "View All Departments":
+        viewAllDepartments();
         break;
       case "Add Department":
+        addDepartment();
         break;
       case "Remove Department":
+        removeDepartment();
         break;
       case "Quit":
         db.end();
@@ -144,15 +164,85 @@ function viewAllEmployeesByManager() {
       });
     });
 }
-function addEmployee() {}
-function removeEmployee() {}
-function updateEmployeeRole() {}
-function updateEmployeeManager() {}
-function viewAllRoles() {}
-function addRole() {}
-function removeRole() {}
-function viewAllDepartments() {}
-function addDepartment() {}
-function removeDepartment() {}
+function addEmployee() {
+  employees.push({ name: "No Manager", id: null });
+  inquirer
+    .prompt([
+      {
+        name: "firstName",
+        message: "Enter the employee's first name: ",
+      },
+      {
+        name: "lastName",
+        message: "Enter the employee's last name: ",
+      },
+      {
+        name: "role",
+        type: "list",
+        message: "Select the employee's role:",
+        choices: roles,
+      },
+      {
+        name: "manager",
+        type: "list",
+        message: "Select the employee's manager:",
+        choices: employees,
+      },
+    ])
+    .then((response) => {
+      let employeeRoleIndex = roles
+        .map(function (e) {
+          return e.name;
+        })
+        .indexOf(response.role);
+      let employeeRoleID = roles[employeeRoleIndex].id;
+      let employeeManagerIndex = employees
+        .map(function (e) {
+          return e.name;
+        })
+        .indexOf(response.manager);
+      let employeeManagerID = employees[employeeManagerIndex].id;
+      db.query(
+        "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)",
+        [
+          response.firstName,
+          response.lastName,
+          employeeRoleID,
+          employeeManagerID,
+        ],
+        function (err) {
+          if (err) throw err;
+          start();
+        }
+      );
+    });
+}
+function removeEmployee() {
+  start();
+}
+function updateEmployeeRole() {
+  start();
+}
+function updateEmployeeManager() {
+  start();
+}
+function viewAllRoles() {
+  start();
+}
+function addRole() {
+  start();
+}
+function removeRole() {
+  start();
+}
+function viewAllDepartments() {
+  start();
+}
+function addDepartment() {
+  start();
+}
+function removeDepartment() {
+  start();
+}
 
 start();
