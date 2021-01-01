@@ -376,7 +376,22 @@ function addDepartment() {
     });
 }
 function removeDepartment() {
-  start();
+  inquirer
+    .prompt([
+      {
+        name: "deptToRemove",
+        type: "list",
+        message: "Select the Department to remove",
+        choices: departments,
+      },
+    ])
+    .then((response) => {
+      let deptID = getID(departments, response.deptToRemove);
+      db.query("DELETE FROM department WHERE id = ?", deptID, function (err) {
+        if (err) throw err;
+        start();
+      });
+    });
 }
 
 start();
