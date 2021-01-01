@@ -235,7 +235,35 @@ function removeEmployee() {
     });
 }
 function updateEmployeeRole() {
-  start();
+  inquirer
+    .prompt([
+      {
+        name: "employeeToUpdateRole",
+        type: "list",
+        message: "Select the employee to update:",
+        choices: employees,
+      },
+      {
+        name: "roleToUpdate",
+        type: "list",
+        message: "Select the new Role:",
+        choices: roles,
+      },
+    ])
+    .then((response) => {
+      console.log(response);
+      let employeeID = getID(employees, response.employeeToUpdateRole);
+      let roleID = getID(roles, response.roleToUpdate);
+
+      db.query(
+        "UPDATE employee SET role_id = ? WHERE id = ?",
+        [roleID, employeeID],
+        function (err) {
+          if (err) throw err;
+          start();
+        }
+      );
+    });
 }
 function updateEmployeeManager() {
   start();
