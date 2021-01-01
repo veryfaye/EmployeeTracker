@@ -124,13 +124,21 @@ function start() {
     }
   });
 }
-
+function getID(array, key) {
+  let index = array
+    .map(function (e) {
+      return e.name;
+    })
+    .indexOf(key);
+  return array[index].id;
+}
 function viewAllEmployees() {
   db.query(employeeQuery, function (err, res) {
     console.table(res);
     start();
   });
 }
+
 function viewAllEmployeesByDepartment() {
   inquirer
     .prompt({
@@ -147,6 +155,7 @@ function viewAllEmployeesByDepartment() {
       });
     });
 }
+
 function viewAllEmployeesByManager() {
   inquirer
     .prompt({
@@ -164,6 +173,7 @@ function viewAllEmployeesByManager() {
       });
     });
 }
+
 function addEmployee() {
   employees.push({ name: "No Manager", id: null });
   inquirer
@@ -190,18 +200,8 @@ function addEmployee() {
       },
     ])
     .then((response) => {
-      let employeeRoleIndex = roles
-        .map(function (e) {
-          return e.name;
-        })
-        .indexOf(response.role);
-      let employeeRoleID = roles[employeeRoleIndex].id;
-      let employeeManagerIndex = employees
-        .map(function (e) {
-          return e.name;
-        })
-        .indexOf(response.manager);
-      let employeeManagerID = employees[employeeManagerIndex].id;
+      let employeeRoleID = getID(roles, response.role);
+      let employeeManagerID = getID(employees, response.manager);
       db.query(
         "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)",
         [
@@ -218,6 +218,16 @@ function addEmployee() {
     });
 }
 function removeEmployee() {
+  inquirer
+    .prompt({
+      name: "employeeToRempove",
+      type: "list",
+      message: "Select the employee to remove:",
+      choices: employees,
+    })
+    .then((response) => {
+      console.log(response);
+    });
   start();
 }
 function updateEmployeeRole() {
