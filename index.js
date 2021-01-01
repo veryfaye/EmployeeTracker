@@ -266,8 +266,35 @@ function updateEmployeeRole() {
     });
 }
 function updateEmployeeManager() {
-  start();
-}
+    inquirer
+    .prompt([
+      {
+        name: "employeeToUpdateManager",
+        type: "list",
+        message: "Select the employee to update:",
+        choices: employees,
+      },
+      {
+        name: "managerToUpdate",
+        type: "list",
+        message: "Select the new Manager:",
+        choices: employees,
+      },
+    ])
+    .then((response) => {
+      console.log(response);
+      let employeeID = getID(employees, response.employeeToUpdateManager);
+      let managerID = getID(employees, response.managerToUpdate);
+
+      db.query(
+        "UPDATE employee SET manager_id = ? WHERE id = ?",
+        [managerID, employeeID],
+        function (err) {
+          if (err) throw err;
+          start();
+        }
+      );
+    });}
 function viewAllRoles() {
   start();
 }
