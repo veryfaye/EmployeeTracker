@@ -296,7 +296,10 @@ function updateEmployeeManager() {
       );
     });}
 function viewAllRoles() {
-  start();
+    db.query('SELECT role.id, role.title, role.salary, department.name FROM role INNER JOIN department ON role.department_id = department.id ORDER BY role.id', function(err, res) {
+        console.table(res);
+        start();
+    });
 }
 function addRole() {
   start();
