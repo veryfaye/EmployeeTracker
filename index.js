@@ -1,9 +1,9 @@
 const inquirer = require("inquirer");
 const db = require("./db/connection");
 const logo = require("asciiart-logo");
-const { debugPort } = require("process");
-const { indexOf } = require("lodash");
+const config = require("./package.json");
 
+//used to ask the user what action to take when start() is called
 const choices = {
   name: "choice",
   type: "list",
@@ -33,13 +33,24 @@ let managers = [];
 let employees = [];
 let employeeQuery;
 
+//Display Logo, and call start function
+function logoArt() {
+  console.log(logo(config).render());
+  start();
+}
+
+//Used to reset all arrays, and prompt the user
 function start() {
+  //reset arrays that store the db information
   departments = [];
   roles = [];
   managers = [];
   employees = [];
+  //query used in all employee functions
   employeeQuery =
     'SELECT employee.id, CONCAT(employee.first_name, " ", employee.last_name) AS name, role.title, department.name AS department, role.salary, CONCAT(m.first_name, " ", m.last_name) AS manager FROM employee LEFT JOIN employee m ON employee.manager_id = m.id INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id';
+
+  //gather department name and id into an array of objects
   db.query(
     "SELECT * FROM department ORDER BY department.id",
     function (err, res) {
@@ -47,18 +58,18 @@ function start() {
       res.forEach((item) => {
         departments.push({ name: item.name, id: item.id });
       });
-      // console.log(departments);
     }
   );
 
+  //gather role title and id into an array of objects
   db.query("SELECT * FROM role ORDER BY role.id", function (err, res) {
     if (err) throw err;
     res.forEach((item) => {
       roles.push({ name: item.title, id: item.id });
     });
-    //   console.log(roles);
   });
 
+  //gather managers names and ids from employee table into an array of objects
   db.query(
     "SELECT * FROM employee WHERE manager_id IS NULL ORDER BY employee.id",
     function (err, res) {
@@ -67,19 +78,19 @@ function start() {
         managerName = item.first_name + " " + item.last_name;
         managers.push({ name: managerName, id: item.id });
       });
-      // console.log(managers);
     }
   );
 
+  //gather all employee names and ids into an array of objects
   db.query("SELECT * FROM employee ORDER BY employee.id", function (err, res) {
     if (err) throw err;
     res.forEach((item) => {
       employeeName = item.first_name + " " + item.last_name;
       employees.push({ name: employeeName, id: item.id });
     });
-    // console.log(employees);
   });
 
+  //Ask the user what action they want to take. Depending on the response then call the specific funciton
   inquirer.prompt(choices).then((response) => {
     console.log(response.choice);
     switch (response.choice) {
@@ -131,6 +142,8 @@ function start() {
     }
   });
 }
+
+//function to get the id from an array of objects with the keys "name" and "id"
 function getID(array, key) {
   let index = array
     .map(function (e) {
@@ -139,6 +152,8 @@ function getID(array, key) {
     .indexOf(key);
   return array[index].id;
 }
+
+//funciton to view all employees from the database
 function viewAllEmployees() {
   db.query(employeeQuery, function (err, res) {
     if (err) throw err;
@@ -147,6 +162,7 @@ function viewAllEmployees() {
   });
 }
 
+//function to filter by department and view employees
 function viewAllEmployeesByDepartment() {
   inquirer
     .prompt({
@@ -156,6 +172,7 @@ function viewAllEmployeesByDepartment() {
       choices: departments,
     })
     .then((response) => {
+      //add this to the query text defined above to filter by department
       employeeQuery += " WHERE department.name = ? ORDER BY employee.id";
       db.query(employeeQuery, response.deptAction, function (err, res) {
         if (err) throw err;
@@ -165,6 +182,7 @@ function viewAllEmployeesByDepartment() {
     });
 }
 
+//function to filter by manager and view employees
 function viewAllEmployeesByManager() {
   inquirer
     .prompt({
@@ -174,6 +192,7 @@ function viewAllEmployeesByManager() {
       choices: managers,
     })
     .then((response) => {
+      //add this to the query text defined above to filter by manager
       employeeQuery +=
         ' WHERE CONCAT(m.first_name, " ", m.last_name) = ? ORDER BY employee.id';
       db.query(employeeQuery, response.managerAction, function (err, res) {
@@ -184,7 +203,9 @@ function viewAllEmployeesByManager() {
     });
 }
 
+//function to add an employee to the database
 function addEmployee() {
+  //allow for a no manager option
   employees.push({ name: "No Manager", id: null });
   inquirer
     .prompt([
@@ -210,6 +231,7 @@ function addEmployee() {
       },
     ])
     .then((response) => {
+      //use get id from above to get the id from the names selected in the prompt
       let employeeRoleID = getID(roles, response.role);
       let employeeManagerID = getID(employees, response.manager);
       db.query(
@@ -228,6 +250,8 @@ function addEmployee() {
       );
     });
 }
+
+//function to remove an employee from the database
 function removeEmployee() {
   inquirer
     .prompt({
@@ -237,7 +261,7 @@ function removeEmployee() {
       choices: employees,
     })
     .then((response) => {
-      console.log(response);
+      //use get id from above to get the id from the name selected in the prompt
       let employeeID = getID(employees, response.employeeToRemove);
       db.query("DELETE FROM employee WHERE id =?", employeeID, function (err) {
         if (err) throw err;
@@ -246,6 +270,8 @@ function removeEmployee() {
       });
     });
 }
+
+//function to allow the user to update the role of an employee
 function updateEmployeeRole() {
   inquirer
     .prompt([
@@ -263,10 +289,9 @@ function updateEmployeeRole() {
       },
     ])
     .then((response) => {
-      console.log(response);
+      //use get id from above to get the id from the name selected in the prompt
       let employeeID = getID(employees, response.employeeToUpdateRole);
       let roleID = getID(roles, response.roleToUpdate);
-
       db.query(
         "UPDATE employee SET role_id = ? WHERE id = ?",
         [roleID, employeeID],
@@ -278,6 +303,8 @@ function updateEmployeeRole() {
       );
     });
 }
+
+//funciton to update the manager of an existing employee
 function updateEmployeeManager() {
   inquirer
     .prompt([
@@ -295,10 +322,9 @@ function updateEmployeeManager() {
       },
     ])
     .then((response) => {
-      console.log(response);
+      //use get id from above to get the id from the name selected in the prompt
       let employeeID = getID(employees, response.employeeToUpdateManager);
       let managerID = getID(employees, response.managerToUpdate);
-
       db.query(
         "UPDATE employee SET manager_id = ? WHERE id = ?",
         [managerID, employeeID],
@@ -310,6 +336,8 @@ function updateEmployeeManager() {
       );
     });
 }
+
+//funciton to view all the roles in the database and their related departments
 function viewAllRoles() {
   db.query(
     "SELECT role.id, role.title, role.salary, department.name FROM role INNER JOIN department ON role.department_id = department.id ORDER BY role.id",
@@ -320,6 +348,8 @@ function viewAllRoles() {
     }
   );
 }
+
+//function to add a role to the database
 function addRole() {
   inquirer
     .prompt([
@@ -339,6 +369,7 @@ function addRole() {
       },
     ])
     .then((response) => {
+      //use get id from above to get the id from the name selected in the prompt
       let departmentID = getID(departments, response.department);
       db.query(
         "INSERT INTO role (title, salary, department_id) VALUES (?,?,?)",
@@ -351,6 +382,8 @@ function addRole() {
       );
     });
 }
+
+//function to be able to remove an existing role from the database
 function removeRole() {
   inquirer
     .prompt([
@@ -362,6 +395,7 @@ function removeRole() {
       },
     ])
     .then((response) => {
+      //use get id from above to get the id from the name selected in the prompt
       let roleID = getID(roles, response.roleToRemove);
       db.query("DELETE FROM role WHERE id =?", roleID, function (err) {
         if (err) throw err;
@@ -370,12 +404,16 @@ function removeRole() {
       });
     });
 }
+
+//function to view all existing departments
 function viewAllDepartments() {
   db.query("SELECT * FROM department", function (err, res) {
     console.table(res);
     start();
   });
 }
+
+//function to add a department to the database
 function addDepartment() {
   inquirer
     .prompt([
@@ -393,6 +431,8 @@ function addDepartment() {
       );
     });
 }
+
+//function to remove an existing department from the database
 function removeDepartment() {
   inquirer
     .prompt([
@@ -404,6 +444,7 @@ function removeDepartment() {
       },
     ])
     .then((response) => {
+      //use get id from above to get the id from the name selected in the prompt
       let deptID = getID(departments, response.deptToRemove);
       db.query("DELETE FROM department WHERE id = ?", deptID, function (err) {
         if (err) throw err;
@@ -412,6 +453,8 @@ function removeDepartment() {
       });
     });
 }
+
+//function to view the total budget of the department as the sum of all the employees salaries in that department
 function viewDepartmentBudget() {
   inquirer
     .prompt([
@@ -423,6 +466,7 @@ function viewDepartmentBudget() {
       },
     ])
     .then((response) => {
+      //use get id from above to get the id from the name selected in the prompt
       let deptID = getID(departments, response.deptBudget);
       db.query(
         "SELECT salary FROM role WHERE department_id = ?",
@@ -443,4 +487,5 @@ function viewDepartmentBudget() {
     });
 }
 
-start();
+// call logoArt to initialize the application
+logoArt();
