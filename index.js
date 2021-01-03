@@ -157,7 +157,13 @@ function getID(array, key) {
 function viewAllEmployees() {
   db.query(employeeQuery, function (err, res) {
     if (err) throw err;
+    console.log(
+      "---------------------------------------------------------------------------------------------------------------------------------------"
+    );
     console.table(res);
+    console.log(
+      "---------------------------------------------------------------------------------------------------------------------------------------"
+    );
     start();
   });
 }
@@ -343,7 +349,13 @@ function viewAllRoles() {
     "SELECT role.id, role.title, role.salary, department.name FROM role INNER JOIN department ON role.department_id = department.id ORDER BY role.id",
     function (err, res) {
       if (err) throw err;
+      console.log(
+        "---------------------------------------------------------------------------------------------------------------------------------------"
+      );
       console.table(res);
+      console.log(
+        "---------------------------------------------------------------------------------------------------------------------------------------"
+      );
       start();
     }
   );
@@ -408,7 +420,14 @@ function removeRole() {
 //function to view all existing departments
 function viewAllDepartments() {
   db.query("SELECT * FROM department", function (err, res) {
+    if (err) throw err;
+    console.log(
+      "---------------------------------------------------------------------------------------------------------------------------------------"
+    );
     console.table(res);
+    console.log(
+      "---------------------------------------------------------------------------------------------------------------------------------------"
+    );
     start();
   });
 }
@@ -478,8 +497,14 @@ function viewDepartmentBudget() {
             salaries += item.salary;
           });
           console.log(
+            "---------------------------------------------------------------------------------------------------------------------------------------"
+          );
+          console.log(
             "Combined salaries for the ",
             response.deptBudget + " is " + salaries
+          );
+          console.log(
+            "---------------------------------------------------------------------------------------------------------------------------------------"
           );
           start();
         }
