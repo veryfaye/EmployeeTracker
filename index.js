@@ -251,7 +251,6 @@ function addEmployee() {
         function (err) {
           if (err) throw err;
           viewAllEmployees();
-          start();
         }
       );
     });
@@ -272,7 +271,6 @@ function removeEmployee() {
       db.query("DELETE FROM employee WHERE id =?", employeeID, function (err) {
         if (err) throw err;
         viewAllEmployees();
-        start();
       });
     });
 }
@@ -304,7 +302,6 @@ function updateEmployeeRole() {
         function (err) {
           if (err) throw err;
           viewAllEmployees();
-          start();
         }
       );
     });
@@ -337,7 +334,6 @@ function updateEmployeeManager() {
         function (err) {
           if (err) throw err;
           viewAllEmployees();
-          start();
         }
       );
     });
@@ -389,7 +385,6 @@ function addRole() {
         function (err) {
           if (err) throw err;
           viewAllRoles();
-          start();
         }
       );
     });
@@ -412,7 +407,6 @@ function removeRole() {
       db.query("DELETE FROM role WHERE id =?", roleID, function (err) {
         if (err) throw err;
         viewAllRoles();
-        start();
       });
     });
 }
@@ -445,7 +439,6 @@ function addDepartment() {
         function (err) {
           if (err) throw err;
           viewAllDepartments();
-          start();
         }
       );
     });
@@ -465,10 +458,9 @@ function removeDepartment() {
     .then((response) => {
       //use get id from above to get the id from the name selected in the prompt
       let deptID = getID(departments, response.deptToRemove);
-      db.query("DELETE FROM department WHERE id = ?", deptID, function (err) {
+      db.query("DELETE FROM department WHERE id = ?", deptID, async function (err) {
         if (err) throw err;
         viewAllDepartments();
-        start();
       });
     });
 }
@@ -488,7 +480,7 @@ function viewDepartmentBudget() {
       //use get id from above to get the id from the name selected in the prompt
       let deptID = getID(departments, response.deptBudget);
       db.query(
-        "SELECT salary FROM role WHERE department_id = ?",
+        "SELECT * FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id WHERE department_id = ?",
         deptID,
         function (err, res) {
           if (err) throw err;

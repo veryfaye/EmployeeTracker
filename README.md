@@ -1,8 +1,13 @@
 # EmployeeTracker
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" alt="Node-Logo">
+  <img src="https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL-Logo">
+</p>
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-##Table of Contents
+## Table of Contents
 
 - [Installation Instructions](#installation-instructions)
 - [Usage Information](#usage-information)
