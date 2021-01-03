@@ -17,6 +17,10 @@
 
 An application for a business man to be able to view and manage the departments, roles, and employees in their company so that they can organize and plan their business
 
+Click [here](https://drive.google.com/file/d/1ScjXYgGayJS0Wau2wgoXaUlOKz9wIvjj/view) to see a video walkthough of the applicaiton
+
+![Video Walkthrough gif](/assets/videoWalkThrough.gif)
+
 ## Installation Instructions
 
 In the connection.js file enter your password in order to create the employee database. In your MySQL Workbench run the schema.sql file to create the database. Use the seed.sql file to seed data into the database.
